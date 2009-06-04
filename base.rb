@@ -26,12 +26,12 @@ git :commit => "-a -m 'Initial commit'"
 
 # Install Gems
 gem 'config_reader'
-gem 'mislav-will_paginate'
+gem 'mislav-will_paginate', :lib => false
 gem 'capistrano'
-gem 'capistrano-ext'
+gem 'capistrano-ext', :lib => false
 gem 'haml'
 gem 'authlogic'
-gem 'norman-friendly_id'
+gem 'norman-friendly_id', :lib => false
 gem 'cucumber', :lib => false
 gem 'rspec', :lib => false
 gem 'rspec-rails', :lib => false
@@ -39,8 +39,6 @@ gem 'rcov', :lib => false
 gem 'webrat', :lib => false
 gem 'ZenTest', :lib => false
 rake('gems:install', :sudo => true)
-rake('gems:unpack', :sudo => true)
-rake('gems:build', :sudo => true)
 git :add => "."
 git :commit => "-a -m 'Added Gems'"
 
@@ -238,12 +236,7 @@ git :commit => "-a -m 'Added ApplicationHelper'"
 
 # Add Layout
 %w(
-  application.html.haml
-  _body.html.haml
-  _common_headers.html.haml
-  _footer.html.haml
-  _tracker.html.haml
-  _on_ready.html.haml
+  application.html.erb
 ).each do |name|
   file "app/views/layouts/#{name}",
     open("#{SOURCE}/app/views/layouts/#{name}").read
@@ -261,22 +254,6 @@ git :commit => "-a -m 'Added Layout and templates'"
 ).each do |dir|
   run "mkdir -p #{dir}"
 end
-
-file "app/views/layouts/admin.html.haml",
-  open("#{SOURCE}/app/views/layouts/admin.html.haml").read
-file "app/views/admin/base/index.html.haml",
-  open("#{SOURCE}/app/views/admin/base/index.html.haml").read
-file "app/controllers/admin/base_controller.rb",
-  open("#{SOURCE}/app/controllers/admin/base_controller.rb").read
-file "spec/controllers/admin/base_controller_spec.rb",
-  open("#{SOURCE}/spec/controllers/admin/base_controller_spec.rb").read
-file "app/helpers/admin/base_helper.rb",
-  open("#{SOURCE}/app/helpers/admin/base_helper.rb").read
-
-route "map.admin '/admin', :controller => 'admin/base'"
-
-git :add => "."
-git :commit => "-a -m 'Added admin stubs'"
 
 # Remove index.html and add HomeController
 git :rm => 'public/index.html'
@@ -304,13 +281,6 @@ file 'app/controllers/application_controller.rb',
 
 git :add => "."
 git :commit => "-a -m 'Added ApplicationController'"
-
-# Application Layout
-file 'app/views/layouts/application.html.haml',
-  open("#{SOURCE}/app/views/layouts/application.html.haml").read
-
-git :add => "."
-git :commit => "-a -m 'Added Layout'"
 
 # update the readme
 run 'rm README'

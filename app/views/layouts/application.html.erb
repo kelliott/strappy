@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title><%= @page_title ? "#{SiteConfig.site_name} / #{@page_title}" : SiteConfig.site_name %></title>
+  <%= stylesheet_link_tag "top_nav" %>
+  <%= stylesheet_link_tag SiteConfig.color_stylesheet %>
+  <%= javascript_include_tag :defaults %>
+  <script type="text/javascript">
+		document.observe("dom:loaded", Application.init);
+  </script>
+  <%= javascript_tag "window._token = '#{form_authenticity_token}'" %>
+  <%= javascript_include_tag "tiny_mce/tiny_mce" %>
+  <%= javascript_include_tag "tinymce_init" %>
+  <%= javascript_include_tag "gears_init" %>
+  <%= javascript_include_tag "locational" %>
+  <% if @map %>
+  	<%= GMap.header(:host => request.domain) %>
+  	<%= javascript_include_tag "markerGroup" %>
+  	<%= @map.to_html %>
+  <% end %>
+</head>
+<body>
+	<div id="login_overlay" class="overlay" style="position:absolute;display:none;">
+	  <div id="login_pop" style="display:none;">
+		  <form action="/user_sessions" method="post">				
+		    <div class="content">
+			    <p><label for="login">Login</label> <input id="login" name="login" type="text" /></p>
+				  <p><label for="password">Password</label> <input id="password" name="password" type="password" /></p>
+				  <p><span style="font-size:10px;"><a href="/forgot_password">Forgotten your password?</a></span></p>
+				  <p><label for="remember_me">Remember me:</label> <input id="remember_me" name="remember_me" type="checkbox" value="1" /></p>
+					<p style="text-align:right;"><a href="#" onclick="Element.hide('login_overlay');return false;">Cancel</a>&nbsp;&nbsp;&nbsp;<input name="commit" type="submit" value="Log in" /></p>
+			  </div>
+		  </form>
+		</div>
+	</div>
+	
+	<div id="flash" style="position:absolute;display:none;">
+		<div id="flash_pop" style="display:none;">
+			<div class="content">
+				<a href="#" onClick="Effect.SlideUp('flash_pop').delay(1);Element.hide('flash');return false;"><%= image_tag "close.png" %></a>
+				<p><strong><%= flash[:notice] || "&nbsp;" %></strong></p>
+			</div>
+		</div>
+	</div>
+	
+	<div id="header">
+		<div id="navigation">
+		<div id="logo"><%= image_tag "welikeparks.png" %></div>
+	    <div id="account">
+		    <span class="not_logged_in">have an account? <a href="/user_sessions/new" onClick="Element.show('login_overlay');Effect.SlideDown('login_pop');return false;">login now</a></span>
+		    <span class="logged_in" style="display:none;">
+			    <a href="/account">your account</a> | 
+			    <a href="/logout" onclick="var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = this.href;var m = document.createElement('input'); m.setAttribute('type', 'hidden'); m.setAttribute('name', '_method'); m.setAttribute('value', 'delete');f.appendChild(m);var a= document.createElement('input');a.setAttribute('type', 'hidden');a.setAttribute('name','authenticity_token');a.setAttribute('value', window._token;f.appendChild(a);f.submit();return false;">logout</a>
+		    </span>
+	    </div>
+
+	    <ul id="left-tabs">
+		    <li class="<%= selected_if_current(:controller => 'home') %>"><%= link_to 'home', '/' %></li>
+			<li class="<%= selected_if_current(:controller => 'parks') %>"><%= link_to "browse", parks_path %></li>
+		    <li class="<%= selected_if_current(:controller => 'tags', :action => 'browse') %>"><%= link_to "tags", browse_tags_path %></li>
+			<li class="<%= selected_if_current(:controller => 'parks', :action => 'nearby') %>"><%= link_to "nearby", nearby_parks_path %></li>
+		    <li class="<%= selected_if_current(:controller => 'search') %>"><%= link_to "search", :controller => "search" %></li>
+		</ul>
+	
+	    <ul id="right-tabs">
+		    <li class="<%= selected_if_current(:controller => 'account') %> logged_in" style="display:none"><a href="/account">account</a></li>
+		    <li class="<%= selected_if_current(:controller => 'favorites') %> logged_in" style="display:none"><%= link_to 'favorites', :controller => 'favorites' %></li>
+		    <li class="not_logged_in"><a href="/signup">register</a></li>
+			<li class="not_logged_in"><a href="/user_sessions/new">login</a></li>
+	    </ul>
+    </div>
+	</div>
+	
+	<div id="thindetails">
+	    <%= yield %>
+	</div>
+
+	<div id="footer">
+		<!-- Application Version -->
+		Version <%= APP_VERSION.to_s %>
+	</div>
+	
+	<%= render :partial => 'shared/js_show_flash' if flash[:notice] %>
+</body>
+</html>
